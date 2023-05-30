@@ -1,23 +1,26 @@
-import MeetupList from "../components/meetups/MeetupList";
+import MeetupList from '../components/meetups/MeetupList';
+import { MongoClient } from 'mongodb';
+import Head from 'next/head';
+import { Fragment } from 'react';
 
-const DUMMY_MEETUPS = [
-  {
-    id: "m1",
-    title: "First meet up",
-    image:
-      "https://commons.wikimedia.org/wiki/Special:FilePath/Ad-tech_London_2010_(2).JPG",
-    address: "some address 12, some city 123",
-    description: "This location was good for meetups",
-  },
-  {
-    id: "m2",
-    title: " meet up",
-    image:
-      "https://commons.wikimedia.org/wiki/Special:FilePath/Ad-tech_London_2010_(2).JPG",
-    address: "some address 1211, some city 12123123",
-    description: "This location was good for meetups",
-  },
-];
+// const DUMMY_MEETUPS = [
+//   {
+//     id: 'm1',
+//     title: 'First meet up',
+//     image:
+//       'https://commons.wikimedia.org/wiki/Special:FilePath/Ad-tech_London_2010_(2).JPG',
+//     address: 'some address 12, some city 123',
+//     description: 'This location was good for meetups',
+//   },
+//   {
+//     id: 'm2',
+//     title: ' meet up',
+//     image:
+//       'https://commons.wikimedia.org/wiki/Special:FilePath/Ad-tech_London_2010_(2).JPG',
+//     address: 'some address 1211, some city 12123123',
+//     description: 'This location was good for meetups',
+//   },
+// ];
 const HomePage = (props) => {
   // We No longer need to manage state and useEffect because now we get the data through props.
   // const [loadData, setLoadData] = useState([]);
@@ -25,7 +28,18 @@ const HomePage = (props) => {
   //   // Http request
   //   setLoadData(DUMMY_MEETUPS);
   // }, []);
-  return <MeetupList meetups={props.meetups} />;
+  return (
+    <Fragment>
+      <Head>
+        <title>NextJS Meetups</title>
+        <meta
+          name="description"
+          content="Browse a huge list of highly NextJs Meetups "
+        />
+      </Head>
+      <MeetupList meetups={props.meetups} />
+    </Fragment>
+  );
 };
 
 //NextJS will look for a function with that name and if it finds it, it executes this function during this pre-rendering process.
@@ -40,11 +54,27 @@ const HomePage = (props) => {
 export async function getStaticProps() {
   // fetch data from the Api
 
+  const client = await MongoClient.connect(
+    'mongodb+srv://deepakcb:PgppnFe6kEAedWYB@cluster0.qftv6px.mongodb.net/meetups?retryWrites=true&w=majority'
+  );
+  const db = client.db();
+
+  const meetupsCollections = db.collection('meetups');
+
+  const meetups = await meetupsCollections.find().toArray();
+
+  client.close();
+
   //You always need to return an object here.Now, in this object,you can configure various thingsbut most importantly,you typically set a props property here and it has to be named props.
 
   return {
     props: {
-      meetups: DUMMY_MEETUPS,
+      meetups: meetups.map((meetup) => ({
+        title: meetup.title,
+        address: meetup.address,
+        image: meetup.image,
+        id: meetup._id.toString(),
+      })),
       revalidate: 1,
     },
   };
