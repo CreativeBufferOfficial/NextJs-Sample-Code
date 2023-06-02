@@ -16,7 +16,6 @@ const NewMeetupPage = () => {
     const data = await response.json();
 
     router.push('/');
-    // router.replace('/');  // For this method it will not go back to the previous url
   };
 
   return (

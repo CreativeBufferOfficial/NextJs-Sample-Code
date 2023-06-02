@@ -19,8 +19,7 @@ function meetupDetails(props) {
     </Fragment>
   );
 }
-// This is use for  pregenerated for all the url user might be entering at run time -- like meetup deatails page for all ID
-// if they enter a id which was not pregenerated that it will show 404 error page
+
 export async function getStaticPaths() {
   const client = await MongoClient.connect(
     'mongodb+srv://deepakcb:PgppnFe6kEAedWYB@cluster0.qftv6px.mongodb.net/meetups?retryWrites=true&w=majority'
@@ -33,24 +32,10 @@ export async function getStaticPaths() {
 
   client.close();
   return {
-    // tell next Js  your path array contain all support  parameter or some
     fallback: false,
-    // false define for  all  supported path
     paths: meetups.map((meetup) => ({
       params: { meetupId: meetup._id.toString() },
     })),
-    //   paths: [
-    //   {
-    //     params: {
-    //       meetupId: 'm1',
-    //     },
-    //   },
-    //   {
-    //     params: {
-    //       meetupId: 'm2',
-    //     },
-    //   },
-    // ],
   };
 }
 
@@ -61,13 +46,9 @@ export async function getStaticProps(context) {
     'mongodb+srv://deepakcb:PgppnFe6kEAedWYB@cluster0.qftv6px.mongodb.net/meetups?retryWrites=true&w=majority'
   );
   const db = client.db();
-
-  const meetupsCollections = db.collection('meetups');
-
-  const selectedMeetup = await meetupsCollections.findOne({
+  const selectedMeetup = await db.collection('meetups').findOne({
     _id: new ObjectId(meetupId),
   });
-
   client.close();
 
   return {
@@ -81,17 +62,5 @@ export async function getStaticProps(context) {
       },
     },
   };
-  // return {
-  //   props: {
-  //     meetupData: {
-  //       image:
-  //         'https://commons.wikimedia.org/wiki/Special:FilePath/Ad-tech_London_2010_(2).JPG',
-  //       id: 'm1',
-  //       title: 'First Meetup',
-  //       address: 'somearea somecity 19219312',
-  //       description: 'Here is the Location of first meetup',
-  //     },
-  //   },
-  // };
 }
 export default meetupDetails;

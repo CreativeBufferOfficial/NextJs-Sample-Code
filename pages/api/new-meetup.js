@@ -10,9 +10,7 @@ async function handler(req, res) {
     );
     const db = client.db();
 
-    const meetupsCollections = db.collection('meetups');
-
-    const result = await meetupsCollections.insertOne(data);
+    const result = await db.collection('meetups').insertOne(data);
 
     client.close();
     res.status(201).json({ message: 'Meetup Inserted' });
